@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adolfo Luxury Riviera Maya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-light:#E8D5A3;--gold-dark:#8B6914;
+  --cream:#FDFAF4;--dark:#1A1410;--charcoal:#2D2520;
+  --text-main:#3A2E22;--text-muted:#7A6A58;
+  --border:#E8DFD0;--card-bg:#FFFDF9;
+  --success:#2D6A4F;--success-bg:#D8F3DC;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text-main);min-height:100vh}
+
+/* NAV */
+nav{background:var(--dark);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:68px;position:sticky;top:0;z-index:100;border-bottom:1px solid #2e2218}
+.nav-logo-wrap{display:flex;flex-direction:column;line-height:1}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--gold-light);letter-spacing:0.18em;font-style:italic}
+.nav-logo-sub{font-size:0.55rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold-dark);margin-top:2px}
+.nav-tabs{display:flex;gap:0}
+.nav-tab{background:none;border:none;color:#A89880;font-family:'Jost',sans-serif;font-size:0.75rem;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;padding:0 1.2rem;height:68px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.nav-tab.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+.nav-tab:hover{color:var(--gold-light)}
+.cart-btn{background:none;border:1px solid #3a2e1e;color:var(--gold-light);padding:0.45rem 1rem;font-family:'Jost',sans-serif;font-size:0.72rem;letter-spacing:0.1em;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;border-radius:1px}
+.cart-btn:hover{background:var(--gold-dark);border-color:var(--gold-dark)}
+.cart-count{background:var(--gold);color:var(--dark);font-size:0.65rem;font-weight:600;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* COUPON BAR */
+.coupon-bar{background:#120e08;color:var(--gold-light);padding:0.65rem 2rem;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;border-bottom:1px solid #2e2218}
+.coupon-bar>span{font-size:0.75rem;letter-spacing:0.1em;color:#A89880}
+.coupon-input-wrap{display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap}
+.coupon-input{background:transparent;border:1px solid #3a2e1e;color:var(--gold-light);padding:0.32rem 0.7rem;font-family:'Jost',sans-serif;font-size:0.78rem;width:170px;outline:none;transition:border 0.2s}
+.coupon-input::placeholder{color:#5a4a38}
+.coupon-input:focus{border-color:var(--gold)}
+.coupon-apply-btn{background:var(--gold-dark);border:none;color:#fff;padding:0.35rem 0.9rem;font-family:'Jost',sans-serif;font-size:0.72rem;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s;white-space:nowrap}
+.coupon-apply-btn:hover{background:var(--gold)}
+.coupon-scan-btn{background:transparent;border:1px solid #3a2e1e;color:#A89880;padding:0.32rem 0.7rem;cursor:pointer;font-size:0.72rem;display:flex;align-items:center;gap:0.4rem;white-space:nowrap;transition:all 0.2s;font-family:'Jost',sans-serif;letter-spacing:0.06em}
+.coupon-scan-btn:hover{border-color:var(--gold);color:var(--gold-light)}
+.coupon-msg{font-size:0.75rem;font-weight:500;padding:0.25rem 0.7rem;border-radius:2px;min-width:60px}
+.coupon-msg.success{background:#1a3d2e;color:#6ee7b7}
+.coupon-msg.error{background:#3d1a1a;color:#fca5a5}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* HERO */
+.hero{position:relative;height:420px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center}
+.hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=1400&q=80');background-size:cover;background-position:center 40%;filter:brightness(0.35)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(26,20,16,0.3) 0%,rgba(26,20,16,0.6) 100%)}
+.hero-content{position:relative;z-index:2;padding:2rem}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:block}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:300;color:#fff;line-height:1.05;margin-bottom:0.5rem}
+.hero-title em{font-style:italic;color:var(--gold-light)}
+.hero-location{font-size:0.72rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-light);opacity:0.7;margin-top:0.8rem}
+.hero-divider{width:60px;height:1px;background:var(--gold);margin:1rem auto}
+
+/* PRODUCTS */
+.shop-section{padding:2.5rem 2rem}
+.shop-header{text-align:center;margin-bottom:2rem}
+.shop-header h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--charcoal)}
+.shop-header p{font-size:0.8rem;color:var(--text-muted);letter-spacing:0.08em;margin-top:0.3rem}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.8rem;max-width:1200px;margin:0 auto}
+.product-card{background:var(--card-bg);border:1px solid var(--border);transition:transform 0.3s,box-shadow 0.3s;overflow:hidden}
+.product-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(0,0,0,0.1)}
+.product-img-wrap{position:relative;overflow:hidden;height:220px;background:#f0ebe2}
+.product-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s}
+.product-card:hover .product-img{transform:scale(1.06)}
+.product-badge{position:absolute;top:10px;left:10px;background:var(--dark);color:var(--gold-light);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.2rem 0.5rem}
+.product-info{padding:1.1rem 1.2rem}
+.product-cat{font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem}
+.product-name{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;color:var(--charcoal);margin-bottom:0.4rem;line-height:1.2}
+.product-desc{font-size:0.76rem;color:var(--text-muted);line-height:1.55;margin-bottom:0.9rem}
+.product-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:0.8rem}
+.product-price{font-size:1.05rem;font-weight:500;color:var(--gold-dark)}
+.add-btn{background:var(--dark);border:none;color:var(--gold-light);padding:0.42rem 0.9rem;font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.2s;text-transform:uppercase}
+.add-btn:hover{background:var(--gold-dark)}
+.add-btn.added{background:var(--success);color:#fff}
+
+/* CART PAGE */
+.cart-page{padding:2.5rem 2rem;max-width:1100px;margin:0 auto}
+.cart-layout{display:grid;grid-template-columns:1fr 340px;gap:2rem}
+@media(max-width:760px){.cart-layout{grid-template-columns:1fr}.nav-tabs{display:none}.hero-title{font-size:2.2rem}}
+.cart-items{display:flex;flex-direction:column;gap:1rem}
+.cart-section-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--charcoal);margin-bottom:0.3rem}
+.cart-section-sub{font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.05em}
+.cart-item{background:var(--card-bg);border:1px solid var(--border);padding:1rem;display:flex;gap:1rem;align-items:center}
+.cart-item-img{width:70px;height:70px;object-fit:cover;flex-shrink:0;background:#f0ebe2}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--charcoal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-price{font-size:0.82rem;color:var(--text-muted);margin-top:0.15rem}
+.cart-item-controls{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem}
+.qty-btn{width:26px;height:26px;border:1px solid var(--border);background:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text-main);transition:all 0.15s}
+.qty-btn:hover{background:var(--dark);color:var(--gold-light)}
+.qty-num{font-size:0.88rem;min-width:22px;text-align:center;font-weight:500}
+.remove-btn{margin-left:auto;background:none;border:none;color:#b91c1c;cursor:pointer;font-size:0.7rem;letter-spacing:0.05em;font-family:'Jost',sans-serif}
+.order-summary{background:var(--card-bg);border:1px solid var(--border);padding:1.5rem;height:fit-content;position:sticky;top:90px}
+.summary-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;color:var(--charcoal);margin-bottom:1rem;padding-bottom:0.8rem;border-bottom:1px solid var(--border)}
+.summary-row{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.55rem;color:var(--text-muted)}
+.summary-row.total{font-size:1rem;font-weight:500;color:var(--charcoal);margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)}
+.summary-row.discount{color:var(--success);font-weight:500}
+.checkout-btn{width:100%;background:var(--dark);border:none;color:var(--gold-light);padding:0.9rem;font-family:'Jost',sans-serif;font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;margin-top:1rem;transition:background 0.2s}
+.checkout-btn:hover{background:var(--gold-dark)}
+.empty-cart{text-align:center;padding:5rem 2rem;color:var(--text-muted)}
+.empty-icon{font-size:3.5rem;margin-bottom:1rem;opacity:0.5}
+.empty-cart p{margin-bottom:1.2rem;font-size:0.88rem}
+.go-shop-btn{background:var(--dark);border:none;color:var(--gold-light);padding:0.7rem 1.6rem;font-family:'Jost',sans-serif;font-size:0.78rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase}
+
+/* VENDEDORES */
+.vend-page{padding:2.5rem 2rem;max-width:660px;margin:0 auto}
+.vend-header{margin-bottom:2rem}
+.vend-header h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--charcoal)}
+.vend-header p{font-size:0.8rem;color:var(--text-muted);margin-top:0.3rem;letter-spacing:0.05em}
+.form-card{background:var(--card-bg);border:1px solid var(--border);padding:2rem}
+.form-card-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:400;color:var(--charcoal);margin-bottom:1.2rem;padding-bottom:0.8rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem}
+.discount-badge{background:var(--gold-dark);color:#fff;font-size:0.6rem;letter-spacing:0.12em;padding:0.15rem 0.5rem;font-family:'Jost',sans-serif}
+.form-row{margin-bottom:1.1rem}
+.form-label{display:block;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem}
+.form-input{width:100%;border:1px solid var(--border);background:var(--cream);padding:0.6rem 0.8rem;font-family:'Jost',sans-serif;font-size:0.88rem;color:var(--text-main);outline:none;transition:border 0.2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--gold)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
+.generate-btn{width:100%;background:var(--dark);border:none;color:var(--gold-light);padding:0.9rem;font-family:'Jost',sans-serif;font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:background 0.2s;margin-top:0.5rem}
+.generate-btn:hover{background:var(--gold-dark)}
+.qr-result{background:var(--card-bg);border:1px solid var(--border);padding:2rem;text-align:center;margin-top:1.5rem;display:none}
+.qr-result.visible{display:block}
+.qr-result-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--charcoal);margin-bottom:0.3rem}
+.qr-result-sub{font-size:0.75rem;color:var(--text-muted);margin-bottom:1.2rem;letter-spacing:0.04em}
+#qrcode{display:inline-block;margin:0 auto;padding:12px;background:#fff;border:1px solid var(--border)}
+.qr-info{margin-top:1rem;font-size:0.78rem;color:var(--text-muted);line-height:1.7}
+.qr-info strong{color:var(--gold-dark)}
+.download-btn{background:var(--gold-dark);border:none;color:#fff;padding:0.6rem 1.4rem;font-family:'Jost',sans-serif;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;margin-top:1.2rem;text-transform:uppercase;display:inline-block}
+.download-btn:hover{background:var(--gold)}
+
+/* SCANNER MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--dark);border:1px solid var(--gold-dark);padding:1.5rem;max-width:380px;width:100%;position:relative}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold-light);margin-bottom:0.25rem}
+.modal-sub{font-size:0.74rem;color:#7a6a58;margin-bottom:1rem;letter-spacing:0.04em}
+#qr-video{width:100%;aspect-ratio:1;object-fit:cover;background:#000;display:block;border:1px solid #2e2218}
+.modal-close{position:absolute;top:0.9rem;right:0.9rem;background:none;border:none;color:#7a6a58;cursor:pointer;font-size:1.1rem;line-height:1}
+.scan-status{margin-top:0.7rem;font-size:0.75rem;color:#7a6a58;text-align:center;min-height:1rem;letter-spacing:0.05em}
+.scan-status.ok{color:#4ade80}
+.scan-line{position:relative;overflow:hidden}
+.scan-line::after{content:'';position:absolute;left:0;right:0;height:2px;background:var(--gold);animation:scanAnim 1.5s ease-in-out infinite;top:0}
+@keyframes scanAnim{0%{top:0}50%{top:100%}100%{top:0}}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--dark);color:var(--gold-light);padding:0.75rem 1.2rem;font-size:0.78rem;letter-spacing:0.04em;z-index:300;border-left:3px solid var(--gold);transform:translateY(120px);opacity:0;transition:all 0.35s;pointer-events:none;font-family:'Jost',sans-serif;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* FOOTER */
+footer{background:var(--dark);color:#5a4a38;text-align:center;padding:1.5rem;font-size:0.7rem;letter-spacing:0.12em;margin-top:4rem;border-top:1px solid #2e2218}
+footer span{color:var(--gold-dark)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo-wrap">
+    <span class="nav-logo">Adolfo Luxury</span>
+    <span class="nav-logo-sub">Riviera Maya</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('tienda')">Tienda</button>
+    <button class="nav-tab" onclick="showPage('carrito')">Carrito</button>
+    <button class="nav-tab" onclick="showPage('vendedores')">Vendedores</button>
+  </div>
+  <button class="cart-btn" onclick="showPage('carrito')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    <span class="cart-count" id="cart-count">0</span>
+  </button>
+</nav>
+
+<!-- COUPON BAR -->
+<div class="coupon-bar">
+  <span>¿Tienes cupón de descuento?</span>
+  <div class="coupon-input-wrap">
+    <input class="coupon-input" id="coupon-input" placeholder="Código de cupón" maxlength="500">
+    <button class="coupon-apply-btn" onclick="applyCoupon()">Aplicar</button>
+    <button class="coupon-scan-btn" onclick="openScanner()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Escanear QR
+    </button>
+  </div>
+  <span class="coupon-msg" id="coupon-msg"></span>
+</div>
+
+<!-- TIENDA -->
+<div class="page active" id="page-tienda">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <span class="hero-eyebrow">Colección Exclusiva 2025</span>
+      <h1 class="hero-title">Arte en <em>Oro & Plata</em></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-location">Riviera Maya · México</p>
+    </div>
+  </div>
+  <div class="shop-section">
+    <div class="shop-header">
+      <h2>Nuestras Piezas</h2>
+      <p>Joyería fina elaborada a mano por maestros artesanos</p>
+    </div>
+    <div class="products-grid" id="products-grid"></div>
+  </div>
+</div>
+
+<!-- CARRITO -->
+<div class="page" id="page-carrito">
+  <div class="cart-page">
+    <div class="cart-section-title">Tu Carrito</div>
+    <div class="cart-section-sub">Revisa tus piezas seleccionadas</div>
+    <div id="cart-content"></div>
+  </div>
+</div>
+
+<!-- VENDEDORES -->
+<div class="page" id="page-vendedores">
+  <div class="vend-page">
+    <div class="vend-header">
+      <h2>Portal de Vendedores</h2>
+      <p>Genera códigos QR de descuento personalizados para tus clientes</p>
+    </div>
+    <div class="form-card">
+      <div class="form-card-title">
+        Crear Cupón de Descuento
+        <span class="discount-badge">15% OFF</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">Nombre del cliente</label>
+          <input class="form-input" id="v-nombre" placeholder="María García" type="text">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Teléfono</label>
+          <input class="form-input" id="v-tel" placeholder="+52 998 000 0000" type="tel">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-input" id="v-email" placeholder="cliente@correo.com" type="email">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Nombre del vendedor</label>
+        <input class="form-input" id="v-vendedor" placeholder="Tu nombre completo" type="text">
+      </div>
+      <button class="generate-btn" onclick="generateQR()">Generar Código QR</button>
+    </div>
+    <div class="qr-result" id="qr-result">
+      <div class="qr-result-title">Cupón generado exitosamente</div>
+      <div class="qr-result-sub">Comparte este código con tu cliente para que obtenga 15% de descuento</div>
+      <div id="qrcode"></div>
+      <div class="qr-info" id="qr-info"></div>
+      <button class="download-btn" onclick="downloadQR()">Descargar QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div class="modal-overlay" id="scanner-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeScanner()">✕</button>
+    <div class="modal-title">Escanear Cupón QR</div>
+    <div class="modal-sub">Apunta la cámara al código QR del cupón</div>
+    <div class="scan-line">
+      <video id="qr-video" playsinline muted></video>
+    </div>
+    <canvas id="qr-canvas" style="display:none"></canvas>
+    <div class="scan-status" id="scan-status">Iniciando cámara...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<footer>
+  © 2025 <span>Adolfo Luxury Riviera Maya</span> · Joyería fina artesanal · Todos los derechos reservados
+</footer>
+
+<script>
+const products=[
+  {
+    id:1,name:"Collar Estrella de Mar",cat:"Collares",
+    desc:"Delicado collar en plata 925 con colgante de estrella de mar artesanal. Cadena de 45 cm con cierre de seguridad.",
+    price:1850,badge:"Nuevo",
+    img:"https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80"
+  },
+  {
+    id:2,name:"Aretes Luna Creciente",cat:"Aretes",
+    desc:"Aretes de oro 14k con forma de luna creciente. Diseño minimalista que combina con cualquier look.",
+    price:3200,badge:"",
+    img:"https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80"
+  },
+  {
+    id:3,name:"Pulsera Eslabón Dorado",cat:"Pulseras",
+    desc:"Pulsera de oro amarillo 18k con eslabones artesanales. Ajustable de 16 a 19 cm. Acabado satinado.",
+    price:5800,badge:"Popular",
+    img:"https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600&q=80"
+  },
+  {
+    id:4,name:"Anillo Solitario Diamante",cat:"Anillos",
+    desc:"Anillo de compromiso en oro blanco 18k con diamante central de 0.5 quilates. Certificado GIA.",
+    price:22500,badge:"Exclusivo",
+    img:"https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80"
+  },
+  {
+    id:5,name:"Collar Perlas Naturales",cat:"Collares",
+    desc:"Collar de perlas naturales cultivadas con broche de oro 14k. Elegancia atemporal para toda ocasión.",
+    price:7400,badge:"",
+    img:"https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=600&q=80"
+  },
+  {
+    id:6,name:"Aretes Esmeralda y Oro",cat:"Aretes",
+    desc:"Aretes de oro 18k con esmeraldas colombianas naturales de 1.2 ct. Talla oval con bisel en pavé.",
+    price:9900,badge:"Especial",
+    img:"https://images.unsplash.com/photo-1630019852942-f89202989a59?w=600&q=80"
+  },
+  {
+    id:7,name:"Pulsera Tennis Diamantes",cat:"Pulseras",
+    desc:"Pulsera tennis en oro blanco 18k con 48 diamantes de talla brillante, total 2 ct. Cierre seguridad.",
+    price:18500,badge:"Lujo",
+    img:"https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=600&q=80"
+  },
+  {
+    id:8,name:"Anillo Art Déco Topacio",cat:"Anillos",
+    desc:"Anillo inspirado en el Art Déco, plata 925 con rodio y topacio azul sky de 2 ct. Diseño vintage.",
+    price:4100,badge:"",
+    img:"https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?w=600&q=80"
+  },
+];
+
+let cart={};
+let couponApplied=false;
+let scanStream=null;
+let scanInterval=null;
+
+const fmt=n=>'$'+n.toLocaleString('es-MX',{minimumFractionDigits:0})+' MXN';
+
+function renderProducts(){
+  document.getElementById('products-grid').innerHTML=products.map(p=>`
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <img class="product-img" src="${p.img}" alt="${p.name}" loading="lazy">
+        ${p.badge?`<div class="product-badge">${p.badge}</div>`:''}
+      </div>
+      <div class="product-info">
+        <div class="product-cat">${p.cat}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-footer">
+          <div class="product-price">${fmt(p.price)}</div>
+          <button class="add-btn" id="btn-${p.id}" onclick="addToCart(${p.id})">+ Agregar</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addToCart(id){
+  const p=products.find(x=>x.id===id);
+  if(cart[id]) cart[id].qty++;
+  else cart[id]={...p,qty:1};
+  updateCartCount();
+  const btn=document.getElementById('btn-'+id);
+  if(btn){btn.textContent='✓ Agregado';btn.classList.add('added');setTimeout(()=>{btn.textContent='+ Agregar';btn.classList.remove('added')},1400)}
+  showToast(`${p.name} agregado al carrito`);
+}
+
+function updateCartCount(){
+  document.getElementById('cart-count').textContent=Object.values(cart).reduce((s,i)=>s+i.qty,0);
+}
+
+function renderCart(){
+  const items=Object.values(cart);
+  const cont=document.getElementById('cart-content');
+  if(!items.length){
+    cont.innerHTML=`<div class="empty-cart"><div class="empty-icon">◇</div><p>Tu carrito está vacío</p><button class="go-shop-btn" onclick="showPage('tienda')">Explorar Colección</button></div>`;
+    return;
+  }
+  const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const discount=couponApplied?Math.round(subtotal*0.15):0;
+  const total=subtotal-discount;
+  const discountRow=couponApplied?`<div class="summary-row discount"><span>Descuento 15% (cupón)</span><span>-${fmt(discount)}</span></div>`:'';
+  cont.innerHTML=`
+    <div class="cart-layout">
+      <div class="cart-items">
+        ${items.map(i=>`
+          <div class="cart-item">
+            <img class="cart-item-img" src="${i.img}" alt="${i.name}">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${i.name}</div>
+              <div class="cart-item-price">${fmt(i.price)} c/u</div>
+              <div class="cart-item-controls">
+                <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
+                <span class="qty-num">${i.qty}</span>
+                <button class="qty-btn" onclick="changeQty(${i.id},1)">+</button>
+                <button class="remove-btn" onclick="removeItem(${i.id})">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="order-summary">
+        <div class="summary-title">Resumen del Pedido</div>
+        <div class="summary-row"><span>Subtotal (${items.reduce((s,i)=>s+i.qty,0)} piezas)</span><span>${fmt(subtotal)}</span></div>
+        ${discountRow}
+        <div class="summary-row"><span>Envío</span><span style="color:var(--success)">Gratis</span></div>
+        <div class="summary-row total"><span>Total</span><span>${fmt(total)}</span></div>
+        ${couponApplied?'<div style="font-size:0.7rem;color:var(--success);margin-top:0.3rem;text-align:right">✓ Cupón 15% aplicado exitosamente</div>':''}
+        <button class="checkout-btn">Proceder al Pago</button>
+        ${!couponApplied?'<div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.8rem;text-align:center">¿Tienes cupón? Ingrésalo en la barra superior</div>':''}
+      </div>
+    </div>
+  `;
+}
+
+function changeQty(id,d){
+  if(!cart[id])return;
+  cart[id].qty+=d;
+  if(cart[id].qty<=0)delete cart[id];
+  updateCartCount();renderCart();
+}
+function removeItem(id){delete cart[id];updateCartCount();renderCart();}
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const labels={tienda:'Tienda',carrito:'Carrito',vendedores:'Vendedores'};
+  document.querySelectorAll('.nav-tab').forEach(t=>{if(t.textContent===labels[p])t.classList.add('active')});
+  if(p==='carrito')renderCart();
+  window.scrollTo(0,0);
+}
+
+function applyCoupon(code){
+  const val=(code||document.getElementById('coupon-input').value).trim();
+  const msg=document.getElementById('coupon-msg');
+  if(!val){msg.className='coupon-msg error';msg.textContent='Ingresa un código';return}
+  try{
+    const data=JSON.parse(atob(val));
+    if(data.type==='ADOLFO_LUXURY_15'){
+      couponApplied=true;
+      msg.className='coupon-msg success';
+      msg.textContent=`✓ 15% OFF aplicado, ${data.nombre}!`;
+      showToast('¡Cupón aplicado! 15% de descuento en tu compra');
+      if(document.getElementById('page-carrito').classList.contains('active'))renderCart();
+    } else throw new Error();
+  }catch(e){msg.className='coupon-msg error';msg.textContent='Código inválido';}
+}
+
+function generateQR(){
+  const n=document.getElementById('v-nombre').value.trim();
+  const t=document.getElementById('v-tel').value.trim();
+  const e=document.getElementById('v-email').value.trim();
+  const v=document.getElementById('v-vendedor').value.trim();
+  if(!n||!t||!e||!v){showToast('Completa todos los campos');return}
+  const payload={type:'ADOLFO_LUXURY_15',nombre:n,tel:t,email:e,vendedor:v,ts:Date.now()};
+  const encoded=btoa(JSON.stringify(payload));
+  const qrDiv=document.getElementById('qrcode');
+  qrDiv.innerHTML='';
+  new QRCode(qrDiv,{text:encoded,width:200,height:200,colorDark:'#1A1410',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  document.getElementById('qr-info').innerHTML=
+    `<strong>Cliente:</strong> ${n} &nbsp;·&nbsp; <strong>Tel:</strong> ${t}<br><strong>Email:</strong> ${e} &nbsp;·&nbsp; <strong>Vendedor:</strong> ${v}`;
+  const res=document.getElementById('qr-result');
+  res.classList.add('visible');
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function downloadQR(){
+  const canvas=document.querySelector('#qrcode canvas');
+  if(!canvas){showToast('Primero genera el QR');return}
+  const a=document.createElement('a');a.download='cupon-adolfo-luxury.png';a.href=canvas.toDataURL();a.click();
+}
+
+function openScanner(){
+  document.getElementById('scanner-modal').classList.add('open');
+  document.getElementById('scan-status').textContent='Iniciando cámara...';
+  document.getElementById('scan-status').className='scan-status';
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+    .then(stream=>{
+      scanStream=stream;
+      const vid=document.getElementById('qr-video');
+      vid.srcObject=stream;vid.play();
+      vid.addEventListener('loadedmetadata',()=>{
+        document.getElementById('scan-status').textContent='Apunta al código QR del cupón...';
+        startScanning();
+      });
+    }).catch(()=>{document.getElementById('scan-status').textContent='No se pudo acceder a la cámara. Permite el permiso e intenta de nuevo.';});
+}
+
+function startScanning(){
+  const vid=document.getElementById('qr-video');
+  const canvas=document.getElementById('qr-canvas');
+  const ctx=canvas.getContext('2d');
+  scanInterval=setInterval(()=>{
+    if(vid.readyState===vid.HAVE_ENOUGH_DATA){
+      canvas.width=vid.videoWidth;canvas.height=vid.videoHeight;
+      ctx.drawImage(vid,0,0);
+      const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
+      if(code){
+        const st=document.getElementById('scan-status');
+        st.className='scan-status ok';st.textContent='¡QR detectado! Procesando...';
+        clearInterval(scanInterval);
+        setTimeout(()=>{closeScanner();document.getElementById('coupon-input').value=code.data;applyCoupon(code.data);},700);
+      }
+    }
+  },200);
+}
+
+function closeScanner(){
+  clearInterval(scanInterval);
+  if(scanStream)scanStream.getTracks().forEach(t=>t.stop());
+  scanStream=null;
+  document.getElementById('scanner-modal').classList.remove('open');
+  document.getElementById('qr-video').srcObject=null;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+renderProducts();
+</script>
+</body>
+</html>
