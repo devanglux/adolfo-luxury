@@ -260,8 +260,13 @@ footer span{color:var(--gold-dark)}
     </div>
     <div class="qr-result" id="qr-result">
       <div class="qr-result-title">Cupón generado exitosamente</div>
-      <div class="qr-result-sub">Comparte este código con tu cliente para que obtenga 15% de descuento</div>
+      <div class="qr-result-sub">Comparte el QR o el código alfanumérico con tu cliente para 15% de descuento</div>
       <div id="qrcode"></div>
+      <div id="alpha-code-box" style="display:none;align-items:center;justify-content:center;gap:0.6rem;margin-top:1rem;flex-wrap:wrap">
+        <span style="font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted)">Código alternativo:</span>
+        <span id="alpha-code-val" style="font-family:'Courier New',monospace;font-size:1.15rem;font-weight:600;color:var(--gold-dark);letter-spacing:0.18em;background:var(--cream);border:1px solid var(--border);padding:0.3rem 0.8rem"></span>
+        <button id="copy-btn" onclick="copyAlpha()" style="background:var(--dark);border:none;color:var(--gold-light);padding:0.32rem 0.8rem;font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase">Copiar</button>
+      </div>
       <div class="qr-info" id="qr-info"></div>
       <button class="download-btn" onclick="downloadQR()">Descargar QR</button>
     </div>
@@ -286,7 +291,7 @@ footer span{color:var(--gold-dark)}
 <div class="toast" id="toast"></div>
 
 <footer>
-  © 2025 <span>Adolfo Luxury Riviera Maya</span> · Joyería fina artesanal · Todos los derechos reservados
+  © 2026 <span>Adolfo Luxury Riviera Maya</span> · Joyería fina artesanal · Todos los derechos reservados
 </footer>
 
 <script>
@@ -444,12 +449,41 @@ function showPage(p){
   window.scrollTo(0,0);
 }
 
-function applyCoupon(code){
-  const val=(code||document.getElementById('coupon-input').value).trim();
+/* ── encoding helpers (safe con acentos y ñ) ── */
+function safeEncode(obj){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+}
+function safeDecode(str){
+  return JSON.parse(decodeURIComponent(escape(atob(str))));
+}
+
+/* ── código alfanumérico legible de 12 chars ── */
+function makeAlpha(encoded){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let hash=0;
+  for(let i=0;i<encoded.length;i++) hash=(Math.imul(31,hash)+encoded.charCodeAt(i))|0;
+  // prefijo fijo + 8 chars del hash determinístico
+  let code='ALX-';
+  let h=Math.abs(hash);
+  for(let i=0;i<8;i++){code+=chars[h%chars.length];h=Math.floor(h/chars.length)||Math.abs(hash^(i*7919));}
+  return code;
+}
+
+/* mapa en memoria: código alfanumérico → payload codificado */
+const alphaMap={};
+
+function applyCoupon(raw){
+  const val=(raw||document.getElementById('coupon-input').value).trim();
   const msg=document.getElementById('coupon-msg');
   if(!val){msg.className='coupon-msg error';msg.textContent='Ingresa un código';return}
+
+  // intenta como código alfanumérico primero
+  let encoded=alphaMap[val.toUpperCase()]||null;
+  // si no está en el mapa local, intenta decodificar directo (base64)
+  if(!encoded) encoded=val;
+
   try{
-    const data=JSON.parse(atob(val));
+    const data=safeDecode(encoded);
     if(data.type==='ADOLFO_LUXURY_15'){
       couponApplied=true;
       msg.className='coupon-msg success';
@@ -466,66 +500,136 @@ function generateQR(){
   const e=document.getElementById('v-email').value.trim();
   const v=document.getElementById('v-vendedor').value.trim();
   if(!n||!t||!e||!v){showToast('Completa todos los campos');return}
+
   const payload={type:'ADOLFO_LUXURY_15',nombre:n,tel:t,email:e,vendedor:v,ts:Date.now()};
-  const encoded=btoa(JSON.stringify(payload));
+  const encoded=safeEncode(payload);
+  const alphaCode=makeAlpha(encoded);
+  alphaMap[alphaCode]=encoded; // registrar para validación local
+
+  // QR lleva el base64 completo
   const qrDiv=document.getElementById('qrcode');
   qrDiv.innerHTML='';
-  new QRCode(qrDiv,{text:encoded,width:200,height:200,colorDark:'#1A1410',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  new QRCode(qrDiv,{
+    text:encoded,width:200,height:200,
+    colorDark:'#1A1410',colorLight:'#ffffff',
+    correctLevel:QRCode.CorrectLevel.M   // M en lugar de H → más robusto de leer
+  });
+
+  // código alfanumérico copiable
+  document.getElementById('alpha-code-val').textContent=alphaCode;
+  document.getElementById('alpha-code-box').style.display='flex';
+
   document.getElementById('qr-info').innerHTML=
-    `<strong>Cliente:</strong> ${n} &nbsp;·&nbsp; <strong>Tel:</strong> ${t}<br><strong>Email:</strong> ${e} &nbsp;·&nbsp; <strong>Vendedor:</strong> ${v}`;
+    `<strong>Cliente:</strong> ${n} &nbsp;·&nbsp; <strong>Tel:</strong> ${t}<br>`+
+    `<strong>Email:</strong> ${e} &nbsp;·&nbsp; <strong>Vendedor:</strong> ${v}`;
+
   const res=document.getElementById('qr-result');
   res.classList.add('visible');
-  res.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>res.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+function copyAlpha(){
+  const code=document.getElementById('alpha-code-val').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn=document.getElementById('copy-btn');
+    btn.textContent='✓ Copiado';
+    setTimeout(()=>btn.textContent='Copiar',2000);
+  }).catch(()=>{
+    // fallback para Safari/iOS
+    const ta=document.createElement('textarea');
+    ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    const btn=document.getElementById('copy-btn');btn.textContent='✓ Copiado';setTimeout(()=>btn.textContent='Copiar',2000);
+  });
 }
 
 function downloadQR(){
-  const canvas=document.querySelector('#qrcode canvas');
-  if(!canvas){showToast('Primero genera el QR');return}
-  const a=document.createElement('a');a.download='cupon-adolfo-luxury.png';a.href=canvas.toDataURL();a.click();
+  // esperar a que el canvas esté listo
+  const tryDownload=()=>{
+    const canvas=document.querySelector('#qrcode canvas');
+    if(canvas){
+      const a=document.createElement('a');a.download='cupon-adolfo-luxury.png';a.href=canvas.toDataURL('image/png');a.click();
+    } else {
+      const img=document.querySelector('#qrcode img');
+      if(img){const a=document.createElement('a');a.download='cupon-adolfo-luxury.png';a.href=img.src;a.click();}
+      else showToast('Primero genera el QR');
+    }
+  };
+  tryDownload();
 }
 
 function openScanner(){
   document.getElementById('scanner-modal').classList.add('open');
-  document.getElementById('scan-status').textContent='Iniciando cámara...';
-  document.getElementById('scan-status').className='scan-status';
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+  const st=document.getElementById('scan-status');
+  st.textContent='Iniciando cámara...';st.className='scan-status';
+
+  const constraints={
+    video:{
+      facingMode:{ideal:'environment'},
+      width:{ideal:1280},height:{ideal:720}
+    }
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
     .then(stream=>{
       scanStream=stream;
       const vid=document.getElementById('qr-video');
-      vid.srcObject=stream;vid.play();
-      vid.addEventListener('loadedmetadata',()=>{
-        document.getElementById('scan-status').textContent='Apunta al código QR del cupón...';
-        startScanning();
-      });
-    }).catch(()=>{document.getElementById('scan-status').textContent='No se pudo acceder a la cámara. Permite el permiso e intenta de nuevo.';});
+      vid.srcObject=stream;
+      vid.setAttribute('playsinline','');
+      vid.setAttribute('muted','');
+      const playPromise=vid.play();
+      if(playPromise!==undefined){
+        playPromise.then(()=>{
+          st.textContent='Apunta al código QR del cupón...';
+          // pequeño delay para que el frame esté disponible
+          setTimeout(startScanning,500);
+        }).catch(()=>{st.textContent='Error al iniciar video. Intenta de nuevo.';});
+      } else {
+        st.textContent='Apunta al código QR del cupón...';
+        setTimeout(startScanning,500);
+      }
+    }).catch(err=>{
+      st.textContent='Sin acceso a cámara. Verifica permisos en tu navegador.';
+      console.warn('Camera error:',err);
+    });
 }
 
 function startScanning(){
   const vid=document.getElementById('qr-video');
   const canvas=document.getElementById('qr-canvas');
-  const ctx=canvas.getContext('2d');
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  let attempts=0;
+
   scanInterval=setInterval(()=>{
-    if(vid.readyState===vid.HAVE_ENOUGH_DATA){
-      canvas.width=vid.videoWidth;canvas.height=vid.videoHeight;
-      ctx.drawImage(vid,0,0);
-      const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
-      if(code){
+    attempts++;
+    if(vid.readyState<2) return; // not enough data yet
+    const w=vid.videoWidth,h=vid.videoHeight;
+    if(!w||!h) return;
+    canvas.width=w;canvas.height=h;
+    ctx.drawImage(vid,0,0,w,h);
+    try{
+      const imgData=ctx.getImageData(0,0,w,h);
+      // intentar ambas inversiones para mejor detección
+      const code=jsQR(imgData.data,w,h,{inversionAttempts:'attemptBoth'});
+      if(code&&code.data){
         const st=document.getElementById('scan-status');
         st.className='scan-status ok';st.textContent='¡QR detectado! Procesando...';
         clearInterval(scanInterval);
-        setTimeout(()=>{closeScanner();document.getElementById('coupon-input').value=code.data;applyCoupon(code.data);},700);
+        setTimeout(()=>{
+          closeScanner();
+          document.getElementById('coupon-input').value=code.data;
+          applyCoupon(code.data);
+        },600);
       }
-    }
-  },200);
+    }catch(e){}
+  },150);
 }
 
 function closeScanner(){
   clearInterval(scanInterval);
-  if(scanStream)scanStream.getTracks().forEach(t=>t.stop());
-  scanStream=null;
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
   document.getElementById('scanner-modal').classList.remove('open');
-  document.getElementById('qr-video').srcObject=null;
+  const vid=document.getElementById('qr-video');
+  vid.srcObject=null;vid.load();
 }
 
 function showToast(msg){
